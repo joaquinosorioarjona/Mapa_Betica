@@ -1,0 +1,328 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>El Valle del Guadalquivir: Patrimonio de la Humanidad</title>
+  <style>
+    html, 
+	body, 
+	#viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+	#titleDiv {
+      padding: 10px;
+      font-weight: bold;
+      text-align: center;
+	  background-color: #FFF;
+    }
+  </style>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.22/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.22/"></script>
+
+  <script>
+    require([
+	  "esri/config",
+	  "esri/Map",
+      "esri/views/MapView",
+	  "esri/layers/FeatureLayer",
+      "esri/widgets/BasemapGallery",
+      "esri/widgets/ScaleBar",
+	  "esri/widgets/Compass",
+	  "esri/widgets/Search",
+	  "esri/widgets/Locate",
+	  "esri/widgets/Home",
+	  "esri/widgets/Print",
+      "esri/widgets/Legend",
+	  "esri/widgets/LayerList",
+	  "esri/widgets/TimeSlider",
+	  "esri/widgets/Expand",
+	  "esri/widgets/Popup"
+    ], function(esriConfig, Map, MapView, FeatureLayer, BasemapGallery, ScaleBar, Compass, Search, Locate, Home, Print, Legend, LayerList, TimeSlider, Expand, Popup) {
+	
+	  esriConfig.apiKey = "AAPK563647cc6d0d4359b524c8e78537e87fXNsVKRBVmxFq1CtsilGtSJsM5LmFLxB7SUqSwZOSS_eo175yS7MF3OcNqaLQm8Lt";
+
+
+      const map = new Map({
+        basemap: "streets"
+      });
+	 
+      const view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [-4.568, 37.295],
+        zoom: 8
+      });
+	  
+	  const basemapGallery = new BasemapGallery({
+        view: view,
+        source: {
+          query: {
+            title: '"World Basemaps for Developers" AND owner:esri'
+          }
+        }
+      });
+	  
+	  const bgExpand = new Expand({
+          view,
+          content: basemapGallery,
+          expandIconClass: "esri-icon-basemap"
+        });
+        view.ui.add(bgExpand, "bottom-left");
+		
+	  const less10 = {
+          type: "simple-fill",
+          color: [255, 204, 252, 1],
+          style: "solid",
+          outline: {
+            width: 0.5,
+            color: "#211F1F"
+          }
+        };	  
+		
+	  const less50 = {
+          type: "simple-fill",
+          color: [255, 122, 247, 1],
+          style: "solid",
+          outline: {
+            width: 0.5,
+            color: "#211F1F"
+          }
+        };
+
+	  const less100 = {
+          type: "simple-fill",
+          color: [230, 0, 220, 1],
+          style: "solid",
+          outline: {
+            width: 0.5,
+            color: "#211F1F"
+          }
+        };
+		
+	  const less200 = {
+          type: "simple-fill",
+          color: [138, 0, 133, 1],
+          style: "solid",
+          outline: {
+            width: 0.5,
+            color: "#211F1F"
+          }
+        };
+		
+	  const less1000 = {
+          type: "simple-fill",
+          color: [51, 0, 49, 1],
+          style: "solid",
+          outline: {
+            width: 0.5,
+            color: "#211F1F"
+          }
+        };
+		
+      const renderer = {
+          type: "class-breaks",
+          field: "habitantes",
+          legendOptions: {
+            title: "Número de habitantes"
+          },
+          classBreakInfos: [
+            {
+              minValue: 0,
+              maxValue: 10000,
+              symbol: less10,
+              label: "< 10000 habitantes"
+            },
+            {
+              minValue: 10000,
+              maxValue: 50000,
+              symbol: less50,
+              label: "10001-50000 habitantes"
+            },
+            {
+              minValue: 50000,
+              maxValue: 100000,
+              symbol: less100,
+              label: "50001-100000 habitantes"
+            },
+            {
+              minValue: 100000,
+              maxValue: 200000,
+              symbol: less200,
+              label: "100001-200000 habitantes"
+            },
+			{
+              minValue: 200000,
+              maxValue: 1000000,
+              symbol: less1000,
+              label: ">200000 habitantes"
+            }
+          ]
+        };
+	  
+	  const ciudad = {
+        title: "<b>{nombre}</b>",
+        content: "{habitantes} habitantes"
+		};
+		
+      const monumento = {
+        title: "<b>{nombre}</b>",
+        content: "Siglo {Año}"
+		};
+		
+	  const estacion = {
+        title: "<b>{nombre}</b>",
+        content: "Perteneciente al municipio de {municipio}"
+		};
+		
+	  const fisico = new FeatureLayer({
+		url: "https://services1.arcgis.com/wKWg6g7Ozgov9sfw/arcgis/rest/services/Mapa_del_Patrimonio_del_Guadalquivir_WFL1/FeatureServer/7",
+		title: "Dominio físico"
+	  });
+	  map.add(fisico);
+	  
+	  const natura = new FeatureLayer({
+		url: "https://services1.arcgis.com/wKWg6g7Ozgov9sfw/arcgis/rest/services/Mapa_del_Patrimonio_del_Guadalquivir_WFL1/FeatureServer/6",
+		title: "Zonas naturales"
+	  });
+	  map.add(natura);
+	  
+	  const pueblos = new FeatureLayer({
+		url: "https://services1.arcgis.com/wKWg6g7Ozgov9sfw/arcgis/rest/services/Mapa_del_Patrimonio_del_Guadalquivir_WFL1/FeatureServer/5",
+		title: "Poblaciones del Valle del Guadalquivir",
+		renderer: renderer,
+		popupTemplate: ciudad
+	  });
+	  map.add(pueblos);
+	  
+	  const rio = new FeatureLayer({
+		url: "https://services1.arcgis.com/wKWg6g7Ozgov9sfw/arcgis/rest/services/Mapa_del_Patrimonio_del_Guadalquivir_WFL1/FeatureServer/4",
+		title: "Río Guadalquivir"
+	  });
+	  map.add(rio);
+	  
+	  const camino = new FeatureLayer({
+		url: "https://services1.arcgis.com/wKWg6g7Ozgov9sfw/arcgis/rest/services/Mapa_del_Patrimonio_del_Guadalquivir_WFL1/FeatureServer/3",
+		title: "Camino de Andalucía"
+	  });
+	  map.add(camino);
+	  
+	  const tren = new FeatureLayer({
+		url: "https://services1.arcgis.com/wKWg6g7Ozgov9sfw/arcgis/rest/services/Mapa_del_Patrimonio_del_Guadalquivir_WFL1/FeatureServer/2",
+		title: "Línea de Ferrocarril de Andalucía"
+	  });
+	  map.add(tren);
+	  
+	  const estaciones = new FeatureLayer({
+		url: "https://services1.arcgis.com/wKWg6g7Ozgov9sfw/arcgis/rest/services/Mapa_del_Patrimonio_del_Guadalquivir_WFL1/FeatureServer/1",
+		title: "Estaciones de tren",
+		popupTemplate: estacion
+	  });
+	  map.add(estaciones);
+	  
+	  const monumentos = new FeatureLayer({
+		url: "https://services1.arcgis.com/wKWg6g7Ozgov9sfw/arcgis/rest/services/Mapa_del_Patrimonio_del_Guadalquivir_WFL1/FeatureServer/11",
+		title: "Monumentos del Valle del Guadalquivir",
+		popupTemplate: monumento
+	  });
+	  map.add(monumentos);
+	  
+	  const compass = new Compass({
+        view: view
+      });
+      view.ui.add(compass, "bottom-left");
+	  
+	  const scalebar = new ScaleBar({
+        view: view,
+		unit: "metric"
+      });
+      view.ui.add(scalebar, "bottom-left");
+	  
+	  view.ui.add("titleDiv", "top-right");
+	  
+	  const searchWidget = new Search({
+		view: view
+	  });
+      view.ui.add(searchWidget, "top-right");
+	  
+	  const locateBtn = new Locate({
+          view: view
+        });
+      view.ui.add(locateBtn, "top-right");
+	  
+      view.when(() => {
+        const print = new Print({
+          view: view,
+          printServiceUrl:
+            "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task"
+        });
+	    printExpand = new Expand({
+			expandIconClass: "esri-icon-printer",
+			view: view,
+			content: print
+	    });
+        view.ui.add(printExpand, "top-right");
+        });
+	  
+	  const homeBtn = new Home({
+          view: view
+        });
+      view.ui.add(homeBtn, "top-left");
+	  
+	  const legend = new Legend ({
+        view: view
+      });
+      legendExpand = new Expand({
+		expandIconClass: "esri-icon-legend",
+		view: view,
+		content: legend
+	  });
+	  view.ui.add(legendExpand, "top-left");
+	  
+	  const layerList = new LayerList({
+		view: view
+      });
+	  layerListExpand = new Expand({
+		expandIconClass: "esri-icon-layer-list",
+		view: view,
+		content: layerList
+	  });
+	  view.ui.add(layerListExpand, "top-left");
+     
+	  const timeSlider = new TimeSlider({
+		container: "timeSliderDiv",
+		view: view,
+		mode: "time-window",
+		playRate: 2000,
+		stops: {
+            interval: {
+              value: 1,
+              unit: "days"
+            }
+        }
+	  });
+	  view.ui.add(timeSlider, "bottom-right");
+	  
+	  view.whenLayerView(monumentos).then((lv) => {
+        timeSlider.fullTimeExtent = {
+          start: monumentos.timeInfo.fullTimeExtent.start,
+          end: monumentos.timeInfo.fullTimeExtent.end
+        };
+      });
+	  
+	});
+  </script>
+</head>
+<body>
+  <div id="viewDiv"></div>
+  <div id="titleDiv" class="esri-widget">
+      <div id="titleText">El Valle del Guadalquivir: Patrimonio de la Humanidad</div>
+  </div>
+</body>
+</html>
+
+
+
+
